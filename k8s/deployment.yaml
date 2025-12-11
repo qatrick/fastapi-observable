@@ -24,13 +24,10 @@ spec:
           image: my-registry/fastapi-app:latest
           ports:
             - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: fastapi-env-secret
           env:
-            - name: ENV
-              value: "production"
-            - name: TEMPO_ENDPOINT
-              value: "http://tempo-distributor.monitoring.svc.cluster.local:4317"
-            - name: PYROSCOPE_SERVER_ADDRESS
-              value: "http://pyroscope.monitoring.svc.cluster.local:4040"
             # Downward API for Pod Name
             - name: POD_NAME
               valueFrom:
