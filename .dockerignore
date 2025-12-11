@@ -1,0 +1,9 @@
+.git
+.venv
+__pycache__
+*.pyc
+.env
+uv.lock
+k8s/
+tests/
+locustfile.py

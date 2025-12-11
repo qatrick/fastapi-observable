@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-app
+  labels:
+    app: fastapi-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fastapi-app
+  template:
+    metadata:
+      labels:
+        app: fastapi-app
+      annotations:
+        # Prometheus Discovery
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: fastapi
+          image: my-registry/fastapi-app:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: ENV
+              value: "production"
+            - name: TEMPO_ENDPOINT
+              value: "http://tempo-distributor.monitoring.svc.cluster.local:4317"
+            - name: PYROSCOPE_SERVER_ADDRESS
+              value: "http://pyroscope.monitoring.svc.cluster.local:4040"
+            # Downward API for Pod Name
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastapi-service
+spec:
+  selector:
+    app: fastapi-app
+  ports:
+    - port: 80
+      targetPort: 8000
